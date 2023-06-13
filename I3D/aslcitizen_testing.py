@@ -53,12 +53,12 @@ train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
 test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
 #Update files and paths as needed
-video_base_path = '../data/videos/'
-train_file = '../data_csv/aslcitizen_training_set.csv'
-test_file = '../data_csv/aslcitzen_test_set.csv'
+video_base_path = '../../final_dataset/ASL_Citizen/videos/'
+train_file = '../../final_dataset/ASL_Citizen/splits/train.csv'
+test_file = '../../final_dataset/ASL_Citizen/splits/test.csv'
 #Update names according to experiment number
-tag = 'experiment1b'
-dataset_name = "training_full"
+tag = 'may'
+dataset_name = "v1"
 
 #load data
 train_ds = Dataset(datadir=video_base_path, transforms=train_transforms, video_file=train_file)
@@ -80,7 +80,7 @@ for g in gloss2idx:
 i3d = InceptionI3d(400, in_channels=3)
 i3d.replace_logits(2731)
 #Update model weights here
-i3d.load_state_dict(torch.load('./saved_weights/experiment1a_75_0.736444.pt'))
+i3d.load_state_dict(torch.load('./saved_weights_may/_v174_0.741945.pt'))
 i3d.cuda()
 
 #For wlasl

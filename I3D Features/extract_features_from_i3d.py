@@ -44,8 +44,8 @@ dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, n
                                              pin_memory=False)
 
 #Kinetics
-i3d = InceptionI3d(400, in_channels=3)
-i3d.load_state_dict(torch.load('rgb_imagenet.pt'))
+#i3d = InceptionI3d(400, in_channels=3)
+#i3d.load_state_dict(torch.load('rgb_imagenet.pt'))
 
 #WLASL
 #i3d = InceptionI3d(400, in_channels=3)
@@ -53,9 +53,9 @@ i3d.load_state_dict(torch.load('rgb_imagenet.pt'))
 #i3d.load_state_dict(torch.load('FINAL_nslt_2000_iters=5104_top1=32.48_top5=57.31_top10=66.31.pt'))
 
 #ASLCitizen
-#i3d = InceptionI3d(400, in_channels=3)
-#i3d.replace_logits(2731)
-#i3d.load_state_dict(torch.load('../supervised_classifier/saved_weights_jan_1a/_jan_1a75_0.736444.pt'))
+i3d = InceptionI3d(400, in_channels=3)
+i3d.replace_logits(2731)
+i3d.load_state_dict(torch.load('../I3D/saved_weights_may/_v174_0.741945.pt'))
 
 i3d.remove_last()
 i3d.cuda()

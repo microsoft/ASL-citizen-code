@@ -57,13 +57,17 @@ dataset_name = "training_full"
 train_transforms = pose_transforms.Compose([pose_transforms.ShearTransform(0.1),
                                             pose_transforms.RotatationTransform(0.1)])
 #load data
-train_ds = Dataset(datadir=video_base_path, video_file=train_file, transforms=train_transforms)
-test_ds = Dataset(datadir=video_base_path, video_file=test_file, gloss_dict=train_ds.gloss_dict)
+train_ds = Dataset(datadir=video_base_path, video_file=train_file, transforms=train_transforms, pose_map_file = "pose_mapping_train.csv")
+test_ds = Dataset(datadir=video_base_path, video_file=test_file, gloss_dict=train_ds.gloss_dict, pose_map_file = "pose_mapping_test.csv")
 n_classes = len(train_ds.gloss_dict)
 
 
 test_loader = torch.utils.data.DataLoader(test_ds, batch_size=1, shuffle=True, num_workers=2, pin_memory=True)
 gloss2idx = train_ds.gloss_dict
+idx2gloss = {}
+for g in gloss2idx:
+    idx = gloss2idx[g]
+    idx2gloss[idx] = g
 
 #load model
 n_features = 256
@@ -152,10 +156,6 @@ with open('user_stats ' + tag + '.txt', 'w') as f:
 
 #output complete confusion matrix
 np.savetxt('confusion matrix ' + tag + '.txt', conf_matrix, fmt='%d')
-
-for key in idx2gloss:
-    v = gloss2idx[key]
-    idx2gloss[v] = key
 
 #output mini confusion matrix
 with open('conf_mini_' + tag + '.csv', 'w') as f:

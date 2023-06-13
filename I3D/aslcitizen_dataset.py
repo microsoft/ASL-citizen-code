@@ -74,10 +74,26 @@ class ASLCitizen(data_utl.Dataset):
         if not gloss_dict: #initialize gloss dict if not passed in as argument
             self.gloss_dict = {}
             g_count = 0
+        
+            gloss_list = []
+            with open(video_file, 'r') as file:
+                reader = csv.reader(file)
+                next(reader, None)
+                for row in reader:
+                    g = row[2].strip()
+                    if g not in gloss_list:
+                        gloss_list.append(g)
+            gloss_list.sort()
+
+            for i in range(len(gloss_list)):
+                g = gloss_list[i]
+                ind = i
+                self.gloss_dict[g] = ind
         else:
             self.gloss_dict = gloss_dict
             g_count = len(gloss_dict)
-        
+
+
         #parse data csv
         with open(video_file, 'r') as file:
             reader = csv.reader(file)
@@ -90,13 +106,6 @@ class ASLCitizen(data_utl.Dataset):
                 self.video_info.append(row)
 
                 g = row[2].strip()
-
-                if g not in self.gloss_dict: #update gloss dictionary
-                    if gloss_dict:
-                        print(g)
-                    else:
-                        self.gloss_dict[g] = g_count
-                        g_count += 1
                 self.labels.append(self.gloss_dict[g])
 
 
@@ -113,7 +122,6 @@ class ASLCitizen(data_utl.Dataset):
         total_frames = 64
         imgs = load_rgb_frames_from_video(video_path, total_frames)
         name = self.video_info[index]
-
         name_dict = {'user': name[0], 'filename': name[1], 'gloss':name[2]}
 
         imgs = self.pad(imgs, total_frames)

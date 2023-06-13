@@ -1,6 +1,7 @@
 import math
 import os
 import argparse
+import random
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = '0'
@@ -23,6 +24,7 @@ import cv2
 
 from tqdm import tqdm
 
+random.seed(0)
 torch.manual_seed(0)
 np.random.seed(0)
 torch.backends.cudnn.deterministic = True
@@ -33,20 +35,29 @@ train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
 test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
 #Update files and paths as needed
-video_base_path = '../data/PaidDataSet/videos/'
-train_file = '../data_csv/aslcitizen_training_set.csv'
-test_file = '../data_csv/aslcitizen_validation_set.csv'
+video_base_path = '../../final_dataset/ASL_Citizen/videos/'
+train_file = '../../final_dataset/ASL_Citizen/splits/train.csv'
+test_file = '../../final_dataset/ASL_Citizen/splits/val.csv'
 
 #Update names according to experiment number
-save_model = "./saved_weights_jan_1a/"
-dataset_name = "training_full"
-log_file = 'logs_jan_1a'
+save_model = "./saved_weights_may/"
+dataset_name = "v1"
+log_file = 'logs_may'
 
 if not os.path.exists(save_model):
     os.makedirs(save_model)
 
 if not os.path.exists(log_file):
     os.mkdir(log_file)
+
+def seed_worker(worker_id):
+    #worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(0)
+    random.seed(0)
+    
+
+g = torch.Generator()
+g.manual_seed(0)
 
 #Load datasets
 train_ds = Dataset(datadir=video_base_path, transforms=train_transforms, video_file=train_file)
@@ -55,8 +66,8 @@ print(len(train_ds.gloss_dict))
 test_ds = Dataset(datadir=video_base_path, transforms=test_transforms, video_file=test_file, gloss_dict=train_ds.gloss_dict)
 print(len(test_ds.gloss_dict))
 
-train_loader = torch.utils.data.DataLoader(train_ds, batch_size=8, shuffle=True, num_workers=2, pin_memory=True)
-test_loader = torch.utils.data.DataLoader(test_ds, batch_size=8, shuffle=True, num_workers=2, pin_memory=True)
+train_loader = torch.utils.data.DataLoader(train_ds, batch_size=8, shuffle=True, num_workers=2, pin_memory=True, worker_init_fn=seed_worker, generator=g)
+test_loader = torch.utils.data.DataLoader(test_ds, batch_size=8, shuffle=True, num_workers=2, pin_memory=True, worker_init_fn=seed_worker, generator=g)
 
 # Load i3d model
 i3d = InceptionI3d(400, in_channels=3)

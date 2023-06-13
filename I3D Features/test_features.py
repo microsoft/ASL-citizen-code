@@ -54,8 +54,8 @@ def load_data(file):
             label = row[0].strip()
             labels.append(label) 
 
-            if g not in g_dict:
-                g_dict[g] = g_index
+            if label not in g_dict:
+                g_dict[label] = g_index
                 g_index += 1
 
     return data, labels, g_dict

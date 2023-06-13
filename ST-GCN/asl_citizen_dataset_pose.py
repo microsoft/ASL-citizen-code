@@ -25,43 +25,59 @@ def downsample(frames, max_frames):
 
 
 class ASLCitizen(data_utl.Dataset):
-    def __init__(self, datadir, video_file=None, gloss_dict=None, transforms=None):
+    def __init__(self, datadir, video_file=None, gloss_dict=None, transforms=None, pose_map_file=None):
         self.max_frames = 128
         self.transforms = transforms
-        self.video_paths = []
+        self.pose_paths = []
         self.video_info = []
         self.labels = []
 
         if not gloss_dict: #initialize gloss dict if not passed in as argument
             self.gloss_dict = {}
             g_count = 0
+
+            gloss_list = []
+            with open(video_file, 'r') as file:
+                reader = csv.reader(file)
+                next(reader, None)
+                for row in reader:
+                    g = row[2].strip()
+                    if g not in gloss_list:
+                        gloss_list.append(g)
+            gloss_list.sort()
+
+            for i in range(len(gloss_list)):
+                g = gloss_list[i]
+                ind = i
+                self.gloss_dict[g] = ind
         else:
             self.gloss_dict = gloss_dict
             g_count = len(gloss_dict)
+        
+        vid_to_pose = {}
+        with open(pose_map_file, "r") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                vid_fname = row[0]
+                pose_fname = row[1]
+                vid_to_pose[vid_fname] = pose_fname
 
         #parse data csv
         with open(video_file, 'r') as file:
             reader = csv.reader(file)
             next(reader, None)
             for row in reader:
-                fname = ''.join(row[2][:-4].split('/'))
-                fname = fname + '.npy'
+                vid_fname = row[1]
+                pose_fname = vid_to_pose[vid_fname]
 
-                self.video_paths.append(datadir + fname)
+                self.pose_paths.append(datadir + pose_fname)
                 self.video_info.append(row)
 
                 g = row[2].strip()
-
-                if g not in self.gloss_dict: #update gloss dictionary
-                    if gloss_dict:
-                        print(g)
-                    else:
-                        self.gloss_dict[g] = g_count
-                        g_count += 1
                 self.labels.append(self.gloss_dict[g])
 
     def __getitem__(self, index):
-        video_path = self.video_paths[index]
+        pose_path = self.pose_paths[index]
 
         #one-hot encode label
         l = self.labels[index]
@@ -69,7 +85,7 @@ class ASLCitizen(data_utl.Dataset):
         label[l] = 1
 
         #load frames and downsample / pad as needed
-        data0 = np.load(video_path)
+        data0 = np.load(pose_path)
         length = data0.shape[0]
         if length > self.max_frames:
             data0 = downsample(data0, self.max_frames)
@@ -109,9 +125,9 @@ class ASLCitizen(data_utl.Dataset):
             ret_img = self.transforms(ret_img)
 
         name = self.video_info[index]
-        name_dict = {'user': name[0], 'oldname': name[1], 'filename': name[2], 'gloss': name[3]}
+        name_dict = {'user': name[0], 'filename': name[1], 'gloss': name[2]}
 
         return ret_img.double(), name_dict, torch.tensor(label, dtype=torch.float)
 
     def __len__(self):
-        return len(self.video_paths)
+        return len(self.pose_paths)

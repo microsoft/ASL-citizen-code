@@ -2,7 +2,7 @@ This folder contains files for the I3D Features experiment on the ASL Citizen Da
 
 ### File description:
 
-**pytorch_i3d.py** : This is the network file, containing code for i3d architecture. It was sourced from: [link]
+**pytorch_i3d.py** : This is the network file, containing code for i3d architecture. It was sourced from [PyTorch I3D](https://github.com/piergiaj/pytorch-i3d)
 
 **videotransforms.py**: This contains code for videotransforms that are applied while training and testing such as random crop and center crop.
 
@@ -36,11 +36,3 @@ python3 test_features.py [path to train data tsv] [path to test data tsv] [outpu
 python3 test_features.py train_features_aslcitizen.tsv test_features_aslcitizen.tsv features_aslcitizen
 ```
 The results can be found in .txt and .csv files generated in the same folder.
-
-~~To run the I3D Features Subset experiments, use the same extracted features for the dataset and the following command:~~
-```
-python3 testsubset.py [path to train data tsv] [path to test data tsv] [output file name, no extension]
-```
-```
-python3 testsubset.py train_features_aslcitizen.tsv test_features_aslcitizen.tsv features_aslcitizen_subset 
-```

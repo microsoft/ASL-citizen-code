@@ -1,6 +1,7 @@
 import math
 import os
 import argparse
+import random
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = '3'
@@ -19,6 +20,7 @@ from tqdm import tqdm
 from matplotlib import pyplot as plt
 import pose_transforms
 
+random.seed(0)
 torch.manual_seed(0)
 np.random.seed(0)
 torch.backends.cudnn.deterministic = True
@@ -43,17 +45,24 @@ if not os.path.exists(save_model):
 if not os.path.exists(logfolder):
     os.mkdir(logfolder)
 
+def seed_worker(worker_id):
+    #worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(0)
+    random.seed(0)
+
+g = torch.Generator()
+g.manual_seed(0)
 train_transforms = pose_transforms.Compose([pose_transforms.ShearTransform(0.1),
                                             pose_transforms.RotatationTransform(0.1)])
 
 #Load datasets
-train_ds = Dataset(datadir=video_base_path, video_file=train_file, transforms=train_transforms)
-test_ds = Dataset(datadir=video_base_path, video_file=test_file, gloss_dict=train_ds.gloss_dict)
+train_ds = Dataset(datadir=video_base_path, video_file=train_file, transforms=train_transforms, pose_map_file="pose_mapping_train.csv")
+test_ds = Dataset(datadir=video_base_path, video_file=test_file, gloss_dict=train_ds.gloss_dict, pose_map_file="pose_mapping_val.csv")
 n_classes = len(train_ds.gloss_dict)
 
-train_loader = torch.utils.data.DataLoader(train_ds, batch_size=32, shuffle=True, num_workers=3, pin_memory=True)
+train_loader = torch.utils.data.DataLoader(train_ds, batch_size=32, shuffle=True, num_workers=3, pin_memory=True, worker_init_fn=seed_worker, generator=g)
 test_loader = torch.utils.data.DataLoader(test_ds, batch_size=64, shuffle=False, num_workers=1, pin_memory=True,
-                                          drop_last=False)
+                                          drop_last=False, worker_init_fn=seed_worker, generator=g)
 
 #load model
 n_features = 256

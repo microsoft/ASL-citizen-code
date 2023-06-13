@@ -4,7 +4,7 @@ This folder contains files for the training and testing the ST-GCN model on the 
 
 **pose.py**: This contains code to extract MediaPipe Holistic keypoints from the videos. It saves keypoints as .npy files.
 
-**architecture [subfolder]** contains code for the ST-GCN architecture. It was sourced from [link]
+**architecture [subfolder]** contains code for the ST-GCN architecture. It was sourced from [OpenHands](https://github.com/AI4Bharat/OpenHands)
 
 **pose_transforms.py**: This contains code for transforms that are applied to the pose graph while training and testing such as shear transform.
 
@@ -16,7 +16,7 @@ This folder contains files for the training and testing the ST-GCN model on the 
 
 ### Instructions:
 
-Download the dataset from [link] and unzip. 
+Download the dataset from https://www.microsoft.com/en-us/research/project/asl-citizen/ and unzip. 
 
 To extract the MediaPipe Holistic keypoints from the videos, open pose.py. Update paths to videos, data_csvs and destination path (lines 14-16). Use the following command on the command line. It takes approximately 7 days to complete extracting all keypoints. 
 
