@@ -4,6 +4,6 @@ numpy==1.23.3
 opencv_contrib_python==4.6.0.66
 opencv_python==4.6.0.66
 scipy==1.10.1
-torch==1.13.0.dev20221005+cu117
+torch==1.13.1
 torchvision==0.15.0.dev20221005+cu117
 tqdm==4.64.1
